@@ -61,4 +61,4 @@ The patch is scoped: once the handshake/READY cycle is done, `getLocale()` retur
 
 ## License
 
-GNU General Public License v3 – same as Vencord itself.
+MIT (see the LICENSE file for more information)
