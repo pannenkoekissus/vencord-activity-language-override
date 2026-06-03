@@ -1,25 +1,5 @@
-/*
- * Vencord, a modification for Discord's desktop app
- * Copyright (c) 2024 Vendicated and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { definePluginSettings } from "@api/Settings";
-import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { findByPropsLazy, findByProps } from "@webpack";
 import { Button, Forms, React, FluxDispatcher } from "@webpack/common";
 
 
@@ -336,10 +316,10 @@ export default definePlugin({
         // Since Discord uses a hidden MessageChannel/MessagePort or JSON strings
         // for its RPC server, we can globally intercept the response payload
         // right before it's sent back to the iframe.
-        
+
         const origStringify = JSON.stringify;
         (this as any)._origStringify = origStringify;
-        JSON.stringify = function(value, replacer, space) {
+        JSON.stringify = function (value, replacer, space) {
             if (value && typeof value === "object" && value.cmd === "USER_SETTINGS_GET_LOCALE" && value.data && typeof value.data.locale === "string") {
                 const override = getOverrideForApp(currentRpcAppId);
                 if (override) {
@@ -352,7 +332,7 @@ export default definePlugin({
 
         const origPortPostMessage = MessagePort.prototype.postMessage;
         (this as any)._origPortPostMessage = origPortPostMessage;
-        MessagePort.prototype.postMessage = function(message, transfer) {
+        MessagePort.prototype.postMessage = function (message, transfer) {
             if (message && typeof message === "object" && message.cmd === "USER_SETTINGS_GET_LOCALE" && message.data && typeof message.data.locale === "string") {
                 const override = getOverrideForApp(currentRpcAppId);
                 if (override) {
@@ -372,7 +352,7 @@ export default definePlugin({
         };
         FluxDispatcher.subscribe("EMBEDDED_ACTIVITY_LAUNCH_START", (this as any)._onActivityLaunch);
         FluxDispatcher.subscribe("EMBEDDED_ACTIVITY_LAUNCH_SUCCESS", (this as any)._onActivityLaunch);
-        
+
         // Also sniff local RPC connections just in case
         (this as any)._onRpcConnect = (action: any) => {
             console.log("[ActivityLanguageOverride] RPC connect:", action.type, action.applicationId, action.clientId);

@@ -38,14 +38,12 @@ The override takes effect the next time that game connects to Discord.
 
 ## How it works (technical)
 
-Discord's local RPC server sends a `READY` dispatch to every connecting game that includes user information and configuration – including the user's `locale`.  Games use that locale to determine language.
-
 This plugin:
 
-1. **Captures the `client_id`** from each incoming RPC `HANDSHAKE` so it knows which game is connecting.
-2. **Patches `getLocale()`** in Discord's internal i18n module so that, while the RPC handler is running, it returns the configured override locale instead of the real one.
+1. **Tracks the active activity** by listening to Discord's internal `FluxDispatcher` events (`EMBEDDED_ACTIVITY_LAUNCH_START`, `EMBEDDED_ACTIVITY_LAUNCH_SUCCESS`, and `RPC_APP_CONNECTED`).
+2. **Globally hooks native message transport** (`MessagePort.prototype.postMessage` and `JSON.stringify`) to intercept and mutate the `USER_SETTINGS_GET_LOCALE` response payload right before it is dispatched to the activity's iframe.
 
-The patch is scoped: once the handshake/READY cycle is done, `getLocale()` returns to normal for all other Discord UI code.
+This ensures the override is perfectly scoped and only visible to the configured games, while keeping the rest of your Discord client in your original language.
 
 ---
 
